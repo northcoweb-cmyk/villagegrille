@@ -203,7 +203,7 @@ export function Component({ links = defaultLinks, hint = "click me", logoSrc, ri
           <header className="header">
             <div className="container is--full">
               <nav className="nav-row">
-                <a href="#top" aria-label="home" className="nav-logo-row w-inline-block">
+                <a href="/" aria-label="Village Grille home" className="nav-logo-row w-inline-block">
                   {logoSrc && <img src={logoSrc} alt="" />}
                 </a>
                 <div className="nav-row__right">

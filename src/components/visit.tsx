@@ -115,7 +115,9 @@ export function Footer() {
     <footer className="px-5 py-10 text-sm text-zinc-600 md:px-10">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
         <div className="flex items-center gap-4">
-          <img src="/logo.png" alt="Village Grille" width={64} height={64} className="h-16 w-16 object-contain" />
+          <a href="/" aria-label="Village Grille home">
+            <img src="/logo.png" alt="Village Grille" width={64} height={64} className="h-16 w-16 object-contain" />
+          </a>
           <p>© {new Date().getFullYear()} Village Grille<br />{INFO.address}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-5 font-medium">
