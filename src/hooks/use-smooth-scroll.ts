@@ -17,6 +17,11 @@ export function scrollToTarget(target: number | HTMLElement, immediate = false) 
   }
 }
 
+export function lockScroll(lock: boolean) {
+  if (lenis) (lock ? lenis.stop() : lenis.start());
+  else document.body.style.overflow = lock ? "hidden" : "";
+}
+
 /**
  * Inertia scrolling (Lenis) driven by the GSAP ticker.
  * Scroll state is written straight to two DOM nodes (no page-wide CSS variable updates,

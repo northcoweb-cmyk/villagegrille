@@ -13,27 +13,37 @@ export interface OrderDetails {
 export interface OrderPayload {
   details: OrderDetails;
   lines: CartLine[];
-  subtotal: number;
-  tax: number;
-  total: number;
 }
 
+export class OrderError extends Error {}
+
 /**
- * Order submission seam.
- *
- * Right now this records the order locally and returns a confirmation number so the whole
- * checkout flow works end to end. To go live, replace the body with a POST to the
- * restaurant's order endpoint (and a payment step such as Stripe Checkout). The rest of
- * the UI only depends on this function's signature.
+ * Sends the order to the restaurant through /api/order (see api/order.ts), which emails it.
+ * Throws OrderError if it could not be delivered. The caller must NOT tell the guest the order went
+ * through in that case; it should keep the cart and ask them to call.
  */
-export async function submitOrder(order: OrderPayload): Promise<{ confirmation: string }> {
-  await new Promise((r) => setTimeout(r, 700));
-  const confirmation = "VG-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+export async function submitOrder({ details, lines }: OrderPayload): Promise<{ confirmation: string }> {
+  let res: Response;
   try {
-    const prev = JSON.parse(localStorage.getItem("vg-orders") || "[]");
-    localStorage.setItem("vg-orders", JSON.stringify([...prev, { confirmation, ...order }]));
+    res = await fetch("/api/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        details,
+        lines: lines.map((l) => ({
+          id: l.item.id,
+          qty: l.qty,
+          removed: l.mods.removed,
+          extras: l.mods.extras,
+          note: l.mods.note,
+        })),
+      }),
+    });
   } catch {
-    /* storage unavailable */
+    throw new OrderError("network");
   }
-  return { confirmation };
+  if (!res.ok) throw new OrderError(String(res.status));
+  const data = await res.json().catch(() => null);
+  if (!data?.confirmation) throw new OrderError("bad_response");
+  return { confirmation: data.confirmation };
 }

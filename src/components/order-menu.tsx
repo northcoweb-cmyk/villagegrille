@@ -5,17 +5,25 @@ import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
 import { Reveal } from "@/components/reveal";
 
-const ItemCard = memo(function ItemCard({ item, qty, add }: { item: MenuItem; qty: number; add: (i: MenuItem) => void }) {
+const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuItem; qty: number; add: (i: MenuItem) => void; open: (i: MenuItem) => void }) {
   const [flash, setFlash] = useState(false);
 
-  const onAdd = () => {
+  const onAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
     add(item);
     setFlash(true);
     setTimeout(() => setFlash(false), 900);
   };
 
   return (
-    <li className="flex gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition-colors hover:border-brand/40 hover:bg-white">
+    <li
+      role="button"
+      tabIndex={0}
+      aria-label={`Customize ${item.name}`}
+      onClick={() => open(item)}
+      onKeyDown={(e) => e.key === "Enter" && open(item)}
+      className="flex cursor-pointer gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition-colors hover:border-brand/40 hover:bg-white"
+    >
       {item.image && (
         <img
           src={thumb(item.image)}
@@ -50,11 +58,15 @@ const ItemCard = memo(function ItemCard({ item, qty, add }: { item: MenuItem; qt
 });
 
 export function OrderMenu() {
-  const { dispatch, lines } = useCart();
+  const { dispatch, lines, openItem } = useCart();
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
 
-  const qtyById = useMemo(() => Object.fromEntries(lines.map((l) => [l.item.id, l.qty])), [lines]);
+  const qtyById = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const l of lines) m[l.item.id] = (m[l.item.id] ?? 0) + l.qty;
+    return m;
+  }, [lines]);
   const add = useCallback((item: MenuItem) => dispatch({ type: "add", item }), [dispatch]);
 
   const cats = useMemo(() => {
@@ -117,7 +129,7 @@ export function OrderMenu() {
             </h2>
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
-                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} />
+                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} open={openItem} />
               ))}
             </ul>
           </div>

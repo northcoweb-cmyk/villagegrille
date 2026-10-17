@@ -13,3 +13,10 @@ npm run build
 - Menu data: `src/data/menu.ts` (85 items, 14 categories, from order.yourmenu.com/villagegrille)
 - Cart: `src/lib/cart.tsx`; checkout submit seam: `src/lib/orders.ts` (currently simulated, wire a real endpoint + payment there)
 - Hero animation component: `src/components/ui/connoisseur-stack-interactor.tsx` (GSAP)
+
+## Server functions (`api/`, deployed as Vercel functions)
+
+- `api/chat.ts`: AI chat assistant (Claude via `@anthropic-ai/sdk`), grounded on `src/data/menu.ts`; unsure answers point to the restaurant phone number. Falls back to `src/lib/chat-local.ts` if unavailable.
+- `api/order.ts`: validates the order, recomputes prices from the menu, and emails it to the restaurant via Resend.
+- Environment variables: see `.env.example`.
+- Item customizations (removals, extras, notes): `src/data/customizations.ts` and `src/components/item-modal.tsx`.

@@ -2,6 +2,8 @@ import { ShoppingBag } from "lucide-react";
 import { CartProvider, useCart } from "@/lib/cart";
 import { Component as KineticNav } from "@/components/ui/sterling-gate-kinetic-navigation";
 import { CartDrawer } from "@/components/cart-drawer";
+import { ItemModal } from "@/components/item-modal";
+import { Chatbot } from "@/components/chatbot";
 import Home from "@/pages/home";
 import MenuPage from "@/pages/menu-page";
 import { INFO } from "@/data/menu";
@@ -57,7 +59,7 @@ function CartPill() {
   return (
     <button
       onClick={() => setOpen(true)}
-      className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full bg-brand px-6 py-3.5 font-bold text-white shadow-2xl transition hover:bg-brand-dark active:scale-95"
+      className="fixed bottom-6 left-4 z-40 sm:left-1/2 flex sm:-translate-x-1/2 items-center gap-3 rounded-full bg-brand px-6 py-3.5 font-bold text-white shadow-2xl transition hover:bg-brand-dark active:scale-95"
     >
       <ShoppingBag className="h-5 w-5" />
       View cart · {count} {count === 1 ? "item" : "items"} · {money(subtotal)}
@@ -92,6 +94,8 @@ export default function App() {
         <Screens />
       </main>
       <CartDrawer />
+      <ItemModal />
+      <Chatbot />
     </CartProvider>
   );
 }
