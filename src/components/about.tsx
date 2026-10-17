@@ -33,8 +33,8 @@ export function About() {
       <div className="mt-14 grid gap-5 md:grid-cols-3">
         {cards.map((c, i) => (
           <Reveal key={c.title} delay={i * 0.12}>
-          <a href="#order" className="group relative block aspect-[4/5] w-full overflow-hidden rounded-3xl">
-            <img src={c.img} alt={c.title} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+          <a href="/menu" className="group relative block aspect-[4/5] w-full overflow-hidden rounded-3xl">
+            <img src={c.img} alt={c.title} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <div className="absolute bottom-0 p-6 text-white">
               <h3 className="text-3xl font-extrabold">{c.title}</h3>

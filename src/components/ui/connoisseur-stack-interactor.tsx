@@ -147,9 +147,9 @@ export const Component = ({
 
       {/* RIGHT SIDE: SQUARE GRID (Sharp Squares) */}
       <div className="relative w-full md:w-1/2 flex justify-center items-center mt-16 md:mt-0">
-        <div className="absolute w-[120%] h-[120%] bg-orange-500/10 dark:bg-orange-600/5 blur-[120px] rounded-full transition-opacity duration-1000" />
+        <div className="absolute w-[120%] h-[120%] bg-[radial-gradient(closest-side,rgba(135,13,19,0.14),transparent)] rounded-full" />
 
-        <svg viewBox="0 0 500 500" className="w-[100%] max-w-[500px] h-auto z-10 drop-shadow-xl dark:drop-shadow-[0_0_60px_rgba(0,0,0,0.8)]">
+        <svg viewBox="0 0 500 500" className="w-[100%] max-w-[500px] h-auto z-10">
           <defs>
             <clipPath id="clip-original">
               <path className="path" d="M480.6,235H19.4c-6,0-10.8-4.9-10.8-10.8v-9.5c0-6,4.9-10.8,10.8-10.8h461.1c6,0,10.8,4.9,10.8,10.8v9.5C491.4,230.2,486.6,235,480.6,235z" />

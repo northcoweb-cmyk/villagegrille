@@ -12,19 +12,20 @@ export interface Category {
   items: MenuItem[];
 }
 
-export const IMG_BASE = "https://order.yourmenu.com/_ipx/w_900&f_auto&fit_inside/1020/";
-export const img = (file: string) => IMG_BASE + encodeURI(file);
+const photo = (key: string, w = 800) => `/photos/${key}-${w}.webp`;
+export const thumb = (src: string) => src.replace("-800.", "-360.");
 
 export const PHOTOS = {
-  cali: img("Cali club-1771872448210.jpg"),
-  turkey: img("Turkey bacon melt-1771872476433.jpg"),
-  greek: img("Greek steak sub-1771872485948.jpg"),
-  quesadilla: img("Quesadilla-1771872492293.jpg"),
-  burrito: img("Burrito bowl-1771872402351.jpg"),
-  steak: img("Steak supreme sub-1771872383260.jpg"),
-  burger: img("Gourmet Burger-1771872368167.jpg"),
-  wrap: img("Chicken ceasar wrap-1771872436506.jpg"),
-  taco: img("Taco trio-1771872424405.jpg"),
+  cali: photo("cali"),
+  caliLarge: photo("cali", 1200),
+  turkey: photo("turkey"),
+  greek: photo("greek"),
+  quesadilla: photo("quesadilla"),
+  burrito: photo("burrito"),
+  steak: photo("steak"),
+  burger: photo("burger"),
+  wrap: photo("wrap"),
+  taco: photo("taco"),
 };
 
 type Row = [name: string, price: number, desc?: string, image?: string];

@@ -38,8 +38,8 @@ export function CartDrawer() {
       <div
         onClick={close}
         className={cn(
-          "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+          "fixed inset-0 z-50 bg-black/50 transition-[opacity,visibility] duration-300",
+          open ? "visible opacity-100" : "invisible pointer-events-none opacity-0"
         )}
       />
       <aside

@@ -19,7 +19,7 @@ export function Hero() {
             Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup or delivery.
           </p>
           <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
-            <a href="#order" className={buttonVariants({ size: "lg" })}>
+            <a href="/menu" className={buttonVariants({ size: "lg" })}>
               Order online <ArrowRight className="h-5 w-5" />
             </a>
             <a href={INFO.phoneHref} className={buttonVariants({ size: "lg", variant: "outline" })}>
@@ -31,10 +31,11 @@ export function Hero() {
         <div style={{ animationDelay: "0.35s" }} className="hero-in relative">
           <div data-parallax="-30" className="absolute -right-6 -top-6 h-full w-full rounded-[2.5rem] bg-brand" />
           <img
-            src={PHOTOS.cali}
+            src={PHOTOS.caliLarge}
             alt="California club sandwich at Village Grille"
             className="relative aspect-[4/5] w-full rounded-[2.5rem] object-cover shadow-2xl md:aspect-square"
             fetchPriority="high"
+            decoding="async"
           />
           <img
             src={PHOTOS.burrito}

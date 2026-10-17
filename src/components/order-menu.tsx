@@ -1,56 +1,61 @@
-import { useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Plus, Search, Check } from "lucide-react";
-import { MENU, type MenuItem } from "@/data/menu";
+import { MENU, INFO, thumb, type MenuItem } from "@/data/menu";
 import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
 import { Reveal } from "@/components/reveal";
 
-function ItemCard({ item }: { item: MenuItem }) {
-  const { dispatch, lines } = useCart();
-  const qty = lines.find((l) => l.item.id === item.id)?.qty ?? 0;
+const ItemCard = memo(function ItemCard({ item, qty, add }: { item: MenuItem; qty: number; add: (i: MenuItem) => void }) {
   const [flash, setFlash] = useState(false);
 
-  const add = () => {
-    dispatch({ type: "add", item });
+  const onAdd = () => {
+    add(item);
     setFlash(true);
     setTimeout(() => setFlash(false), 900);
   };
 
   return (
-    <li className="group flex gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition hover:border-brand/40 hover:shadow-md hover:bg-white">
+    <li className="flex gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition-colors hover:border-brand/40 hover:bg-white">
       {item.image && (
         <img
-          src={item.image}
+          src={thumb(item.image)}
           alt={item.name}
+          width={112}
+          height={112}
           loading="lazy"
+          decoding="async"
           className="h-24 w-24 flex-none rounded-xl object-cover md:h-28 md:w-28"
         />
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="font-display text-lg font-bold leading-tight">{item.name}</h3>
+        <h3 className="text-lg font-bold leading-tight">{item.name}</h3>
         {item.desc && <p className="mt-1 line-clamp-3 text-sm text-zinc-600">{item.desc}</p>}
         <div className="mt-auto flex items-center justify-between pt-3">
           <span className="font-semibold text-brand">{money(item.price)}</span>
           <button
-            onClick={add}
+            onClick={onAdd}
             aria-label={`Add ${item.name} to cart`}
             className={cn(
-              "flex h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold transition active:scale-95",
-              flash ? "bg-emerald-600 text-white" : "bg-brand text-white hover:bg-brand-dark"
+              "flex h-9 items-center gap-1 rounded-full px-3 text-sm font-semibold text-white transition active:scale-95",
+              flash ? "bg-emerald-600" : "bg-brand hover:bg-brand-dark"
             )}
           >
             {flash ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {qty > 0 && !flash ? qty : flash ? "Added" : "Add"}
+            {flash ? "Added" : qty > 0 ? qty : "Add"}
           </button>
         </div>
       </div>
     </li>
   );
-}
+});
 
 export function OrderMenu() {
+  const { dispatch, lines } = useCart();
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
+
+  const qtyById = useMemo(() => Object.fromEntries(lines.map((l) => [l.item.id, l.qty])), [lines]);
+  const add = useCallback((item: MenuItem) => dispatch({ type: "add", item }), [dispatch]);
 
   const cats = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -65,13 +70,12 @@ export function OrderMenu() {
   }, [active, q]);
 
   return (
-    <section id="order" className="relative mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
+    <section id="order" className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-10 md:pt-40">
       <Reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-3 text-sm font-semibold font-bold uppercase tracking-widest text-brand">Order online</p>
-          <h2 className="text-4xl font-extrabold tracking-tight md:text-6xl">
-            Our menu
-          </h2>
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">Order online · pickup or delivery</p>
+          <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">Our menu</h1>
+          <p className="mt-3 text-zinc-600">ASAP · about 30 mins · {INFO.address}</p>
         </div>
         <label className="relative block w-full md:w-80">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
@@ -84,14 +88,14 @@ export function OrderMenu() {
         </label>
       </Reveal>
 
-      <div className="sticky top-0 z-30 -mx-5 mb-10 overflow-x-auto bg-white/90 px-5 py-3 backdrop-blur-xl md:-mx-10 md:px-10 [scrollbar-width:none]">
+      <div className="sticky top-16 z-30 -mx-5 mb-10 overflow-x-auto bg-white px-5 py-3 md:-mx-10 md:px-10 [scrollbar-width:none]">
         <div className="flex w-max gap-2">
           {[{ id: "all", name: "All" }, ...MENU].map((c) => (
             <button
               key={c.id}
               onClick={() => setActive(c.id)}
               className={cn(
-                "rounded-full border px-4 py-2 text-sm font-medium transition",
+                "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
                 active === c.id
                   ? "border-brand bg-brand text-white"
                   : "border-black/10 text-zinc-700 hover:border-black/30"
@@ -107,15 +111,15 @@ export function OrderMenu() {
 
       <div className="space-y-14">
         {cats.map((c) => (
-          <div key={c.id}>
-            <h3 className="mb-5 font-display text-2xl font-bold text-zinc-900">
+          <div key={c.id} className="cv">
+            <h2 className="mb-5 text-2xl font-bold text-zinc-900">
               {c.name} <span className="text-base font-medium text-zinc-400">{c.items.length}</span>
-            </h3>
-            <Reveal as="ul" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            </h2>
+            <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
-                <ItemCard key={i.id} item={i} />
+                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} />
               ))}
-            </Reveal>
+            </ul>
           </div>
         ))}
       </div>

@@ -1,21 +1,20 @@
 import { ShoppingBag } from "lucide-react";
 import { CartProvider, useCart } from "@/lib/cart";
 import { Component as KineticNav } from "@/components/ui/sterling-gate-kinetic-navigation";
-import { Hero } from "@/components/hero";
-import { About } from "@/components/about";
-import { Specialties } from "@/components/specialties";
-import { OrderMenu } from "@/components/order-menu";
 import { CartDrawer } from "@/components/cart-drawer";
-import { Visit } from "@/components/visit";
+import Home from "@/pages/home";
+import MenuPage from "@/pages/menu-page";
 import { INFO } from "@/data/menu";
-import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
+import { money } from "@/lib/utils";
+import { useParallax, useSmoothScroll } from "@/hooks/use-smooth-scroll";
+import { usePath, useLinkInterception } from "@/lib/router";
 
 const links = [
-  { label: "Order online", href: "#order" },
-  { label: "About us", href: "#about" },
-  { label: "Favorites", href: "#specialties" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "Visit us", href: "#visit" },
+  { label: "Order online", href: "/menu" },
+  { label: "About us", href: "/#about" },
+  { label: "Favorites", href: "/#favorites" },
+  { label: "Reviews", href: "/#reviews" },
+  { label: "Visit us", href: "/#visit" },
 ];
 
 function SiteNav() {
@@ -51,18 +50,46 @@ function SiteNav() {
   );
 }
 
+/** Floating "view cart" pill on the menu screen once something is added. */
+function CartPill() {
+  const { count, subtotal, setOpen, open } = useCart();
+  if (!count || open) return null;
+  return (
+    <button
+      onClick={() => setOpen(true)}
+      className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full bg-brand px-6 py-3.5 font-bold text-white shadow-2xl transition hover:bg-brand-dark active:scale-95"
+    >
+      <ShoppingBag className="h-5 w-5" />
+      View cart · {count} {count === 1 ? "item" : "items"} · {money(subtotal)}
+    </button>
+  );
+}
+
+function Screens() {
+  const path = usePath();
+  useParallax(path);
+  return path === "/menu" ? (
+    <>
+      <MenuPage />
+      <CartPill />
+    </>
+  ) : (
+    <Home />
+  );
+}
+
 export default function App() {
   useSmoothScroll();
+  useLinkInterception();
   return (
     <CartProvider>
       <div className="scroll-progress" aria-hidden />
+      <div className="page-curtain" aria-hidden>
+        <img src="/logo.png" alt="" />
+      </div>
       <SiteNav />
       <main>
-        <Hero />
-        <About />
-        <Specialties />
-        <OrderMenu />
-        <Visit />
+        <Screens />
       </main>
       <CartDrawer />
     </CartProvider>
