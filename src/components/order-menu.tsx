@@ -62,7 +62,8 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open, canAdd }: { item
 export function OrderMenu() {
   const { dispatch, lines, openItem } = useCart();
   const { delivery, mode } = useOrderConfig();
-  const canAdd = mode !== "link";
+  const canAdd = mode === "square" || mode === "demo";
+  const linkMode = mode === "link";
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
 
@@ -94,7 +95,7 @@ export function OrderMenu() {
           <p className="mt-3 text-zinc-600">{canAdd ? `ASAP · about 30 mins · ${INFO.address}` : "Tap any dish for details. Ready to order? Use the button, we'll open our online ordering page."}</p>
         </div>
         <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-        {!canAdd && (
+        {linkMode && (
           <a
             href={INFO.orderUrl}
             target="_blank"

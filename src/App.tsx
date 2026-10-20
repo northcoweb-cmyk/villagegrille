@@ -4,7 +4,7 @@ import { Component as KineticNav } from "@/components/ui/sterling-gate-kinetic-n
 import { CartDrawer } from "@/components/cart-drawer";
 import { ItemModal } from "@/components/item-modal";
 import { ItemDetail } from "@/components/item-detail";
-import { useOrderConfig } from "@/lib/config";
+import { useOrderConfig, ordersHere } from "@/lib/config";
 import { Chatbot } from "@/components/chatbot";
 import Home from "@/pages/home";
 import MenuPage from "@/pages/menu-page";
@@ -31,14 +31,13 @@ function SiteNav() {
       hint="Hungry?"
       logoSrc="/logo.png"
       rightSlot={
-        mode === "link" ? (
+        mode === "link" || mode === "loading" ? (
           <a
-            href={INFO.orderUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={mode === "link" ? INFO.orderUrl : "/menu"}
+            {...(mode === "link" ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             className="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-zinc-900 shadow-[0_4px_24px_rgb(0_0_0/0.12)] transition hover:bg-zinc-100"
           >
-            <ExternalLink className="h-4 w-4 text-brand" />
+            {mode === "link" && <ExternalLink className="h-4 w-4 text-brand" />}
             Order online
           </a>
         ) : (
@@ -90,7 +89,7 @@ function Screens() {
   return path === "/menu" ? (
     <>
       <MenuPage />
-      {mode !== "link" && <CartPill />}
+      {ordersHere(mode) && <CartPill />}
     </>
   ) : (
     <Home />

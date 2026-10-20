@@ -55,7 +55,9 @@ export function localAnswer(question: string, ordersHere = false): string {
   if (/phone|call|number|contact|reach/.test(q)) return `You can call us at ${INFO.phone}.`;
 
   if (/gift ?card/.test(q))
-    return "Gift cards are on our online ordering page, in any amount. They're emailed and can be used online or in-store.";
+    return ordersHere
+      ? `For gift cards, please call us at ${INFO.phone}.`
+      : "Gift cards are on our online ordering page, in any amount. They're emailed and can be used online or in-store.";
 
   // a specific dish
   const qw = words(q).filter((w) => !STOP.has(w));

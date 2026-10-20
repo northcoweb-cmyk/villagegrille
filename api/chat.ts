@@ -47,7 +47,7 @@ Name: ${INFO.name}
 Address: ${INFO.address}
 Phone: ${PHONE}
 Hours: ${hours}
-${ordersHere ? "Ordering: guests tap Order online on this website, pick dishes, customize each one, and check out for pickup (ASAP is about 30 minutes)." : `Ordering: guests order online at ${INFO.orderUrl} for pickup or delivery (ASAP is about 30 minutes).`} Gift cards are available on the online ordering page (custom amount, emailed, redeemable online or in-store).
+${ordersHere ? "Ordering: guests tap Order online on this website, pick dishes, customize each one, and check out for pickup (ASAP is about 30 minutes)." : `Ordering: guests order online at ${INFO.orderUrl} for pickup or delivery (ASAP is about 30 minutes).`}${ordersHere ? "" : " Gift cards are available on the online ordering page (custom amount, emailed, redeemable online or in-store)."}
 Serves: deli sandwiches, subs, burgers, breakfast (served all day on the menu), pizza, wraps, salads, soups and chili, and Tex-Mex.
 
 MENU (prices in USD)

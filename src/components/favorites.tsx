@@ -3,7 +3,7 @@ import { MENU, PHOTOS } from "@/data/menu";
 import { Reveal } from "@/components/reveal";
 import { money } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { useOrderConfig } from "@/lib/config";
+import { useOrderConfig, ordersHere } from "@/lib/config";
 
 const all = MENU.flatMap((c) => c.items);
 const pick = (name: string, image: string) => ({ ...all.find((i) => i.name === name)!, image });
@@ -38,7 +38,7 @@ export function Favorites() {
             <button
               type="button"
               onClick={() => openItem(p)}
-              aria-label={mode === "link" ? `View ${p.name}` : `Customize and order ${p.name}`}
+              aria-label={ordersHere(mode) ? `Customize and order ${p.name}` : `View ${p.name}`}
               className="group block w-full overflow-hidden rounded-3xl border border-black/10 bg-zinc-50 text-left transition-colors hover:bg-white"
             >
               <div className="aspect-[4/3] overflow-hidden">
@@ -59,7 +59,7 @@ export function Favorites() {
                 </div>
                 <span className="rounded-full bg-brand-tint px-3 py-1 text-sm font-bold text-brand">{money(p.price)}</span>
               </div>
-              <p className="px-6 pb-6 text-sm font-bold text-brand">{mode === "link" ? "See details →" : "Customize & order →"}</p>
+              <p className="px-6 pb-6 text-sm font-bold text-brand">{ordersHere(mode) ? "Customize & order →" : "See details →"}</p>
             </button>
           </Reveal>
         ))}

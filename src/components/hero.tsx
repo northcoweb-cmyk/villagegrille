@@ -7,7 +7,7 @@ const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers
 
 export function Hero() {
   const { delivery, mode } = useOrderConfig();
-  const here = mode !== "link";
+  const here = mode !== "link"; // "loading" counts as here: no external link until we know
   return (
     <section id="top" className="relative overflow-hidden pt-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
