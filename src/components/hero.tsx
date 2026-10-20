@@ -1,10 +1,12 @@
 import { ArrowRight, MapPin, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, PHOTOS } from "@/data/menu";
+import { useOrderConfig } from "@/lib/config";
 
 const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers", "Hot Subs", "Breakfast", "Pizza", "Wraps"];
 
 export function Hero() {
+  const { delivery } = useOrderConfig();
   return (
     <section id="top" className="relative overflow-hidden pt-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
@@ -16,7 +18,7 @@ export function Hero() {
             Where Rockville comes for <span className="text-brand">seriously good food.</span>
           </h1>
           <p style={{ animationDelay: "0.45s" }} className="hero-in mt-6 max-w-lg text-lg text-zinc-600">
-            Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup or delivery.
+            Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup{delivery ? " or delivery" : ""}.
           </p>
           <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
             <a href="/menu" className={buttonVariants({ size: "lg" })}>

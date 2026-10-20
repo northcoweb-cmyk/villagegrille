@@ -99,10 +99,10 @@ export function localAnswer(question: string): string {
   }
 
   if (/deliver/.test(q))
-    return `Yes, you can order online for pickup or delivery. For delivery area and fees, please call ${INFO.phone}.`;
+    return `Online ordering is for pickup right now. For delivery, please call ${INFO.phone}.`;
   if (/pick ?up|take ?out|to go/.test(q)) return "Yes! Order online for pickup. It's usually ready in about 30 minutes.";
   if (/order|online|menu/.test(q))
-    return "You can order online for pickup or delivery. Tap “Order online”, then tap any dish to remove ingredients, add extras or leave special instructions.";
+    return "You can order online for pickup. Tap “Order online”, then tap any dish to remove ingredients, add extras or leave special instructions.";
   if (/what (do|kind)|serve|food|cuisine|about/.test(q))
     return "We serve deli sandwiches and subs, burgers, breakfast, pizza, wraps, salads and Tex-Mex, all in Rockville.";
 

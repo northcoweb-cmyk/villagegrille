@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CheckCircle2, Minus, Plus, X, Loader2 } from "lucide-react";
 import { useCart, describeMods } from "@/lib/cart";
-import { submitOrder, type OrderDetails } from "@/lib/orders";
+import { submitOrder, OrderError, type OrderDetails } from "@/lib/orders";
+import { useOrderConfig } from "@/lib/config";
+import { CardForm, type CardHandle } from "@/components/card-form";
 import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, money } from "@/lib/utils";
@@ -17,7 +19,10 @@ export function CartDrawer() {
   const [step, setStep] = useState<Step>("cart");
   const [busy, setBusy] = useState(false);
   const [confirmation, setConfirmation] = useState("");
-  const [error, setError] = useState(false);
+  const [paid, setPaid] = useState(false);
+  const [error, setError] = useState<{ kind: "payment" | "send"; message: string } | null>(null);
+  const cfg = useOrderConfig();
+  const card = useRef<CardHandle>(null);
   const [d, setD] = useState<OrderDetails>({ name: "", phone: "", email: "", method: "pickup", when: "asap" });
 
   const close = () => {
@@ -28,15 +33,27 @@ export function CartDrawer() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    setError(false);
+    setError(null);
     try {
-      const res = await submitOrder({ details: d, lines });
+      let paymentToken: string | undefined;
+      if (cfg.mode === "square") {
+        const [given, ...rest] = d.name.trim().split(/\s+/);
+        paymentToken = await card.current!.tokenize({
+          amount: total.toFixed(2),
+          givenName: given,
+          familyName: rest.join(" "),
+          email: d.email,
+          phone: d.phone,
+        });
+      }
+      const res = await submitOrder({ details: d, lines, paymentToken });
+      setPaid(res.paid);
       setConfirmation(res.confirmation);
       dispatch({ type: "clear" });
       setStep("done");
-    } catch {
+    } catch (err) {
       // never show a confirmation unless the restaurant actually received the order
-      setError(true);
+      setError(err instanceof OrderError && err.kind === "send" ? { kind: "send", message: "" } : { kind: "payment", message: err instanceof Error && err.message ? err.message : "Please check your card details." });
     }
     setBusy(false);
   };
@@ -72,7 +89,7 @@ export function CartDrawer() {
             <CheckCircle2 className="h-16 w-16 text-emerald-600" />
             <h3 className="font-display text-3xl font-extrabold">Thanks, {d.name.split(" ")[0]}!</h3>
             <p className="text-zinc-600">
-              Order <span className="font-semibold text-zinc-950">{confirmation}</span> was sent to the restaurant. If anything changes they'll contact you at {d.phone}. You'll pay at {d.method === "pickup" ? "pickup" : "delivery"}.</p>
+              Order <span className="font-semibold text-zinc-950">{confirmation}</span> {paid ? `is paid and on its way to the kitchen. A receipt is going to ${d.email}.` : `was sent to the restaurant. You'll pay at ${d.method === "pickup" ? "pickup" : "delivery"}.`} If anything changes they'll contact you at {d.phone}.</p>
             <Button onClick={close} className="mt-4">
               Done
             </Button>
@@ -114,8 +131,8 @@ export function CartDrawer() {
         ) : (
           <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
-              <div className="grid grid-cols-2 gap-2 rounded-full border border-black/10 p-1">
-                {(["pickup", "delivery"] as const).map((m) => (
+              <div className={cn("grid gap-2 rounded-full border border-black/10 p-1", cfg.delivery ? "grid-cols-2" : "grid-cols-1")}>
+                {(cfg.delivery ? (["pickup", "delivery"] as const) : (["pickup"] as const)).map((m) => (
                   <button
                     type="button"
                     key={m}
@@ -148,25 +165,28 @@ export function CartDrawer() {
               <textarea rows={3} className={cn(field, "h-auto py-3")} placeholder="Notes for the kitchen (optional)" value={d.notes ?? ""} onChange={(e) => setD({ ...d, notes: e.target.value })} />
             </div>
             <Totals subtotal={subtotal} tax={tax} total={total} />
-            <div className="flex-none px-5 pb-3 text-sm">
-              {error ? (
+            <div className="flex-none space-y-3 px-5 pb-3 text-sm">
+              {cfg.mode === "square" && cfg.squareAppId && cfg.squareLocationId && (
+                <CardForm ref={card} appId={cfg.squareAppId} locationId={cfg.squareLocationId} env={cfg.squareEnv} />
+              )}
+              {error?.kind === "payment" && <p className="rounded-xl bg-red-50 p-3 text-red-800">{error.message}</p>}
+              {(error?.kind === "send" || cfg.mode === "none") && (
                 <div className="rounded-xl bg-red-50 p-4 text-red-800">
-                  <p className="font-semibold">We couldn't send your order online.</p>
-                  <p className="mt-1">Your cart is saved. Please call us to place it:</p>
+                  <p className="font-semibold">{cfg.mode === "none" ? "Online ordering isn't available right now." : "We couldn't send your order online."}</p>
+                  <p className="mt-1">{cfg.mode === "none" ? "Please call us to place your order:" : "Your cart is saved. Please call us to place it:"}</p>
                   <a href={INFO.phoneHref} className="mt-2 inline-flex items-center gap-2 font-bold underline">
                     <Phone className="h-4 w-4" /> {INFO.phone}
                   </a>
                 </div>
-              ) : (
-                <p className="text-zinc-500">You'll pay when you pick up or receive your order.</p>
               )}
+              {cfg.mode === "email" && !error && <p className="text-zinc-500">You'll pay when you pick up your order.</p>}
             </div>
             <div className="flex flex-none gap-2 p-5 pt-0">
               <Button type="button" variant="outline" size="lg" onClick={() => setStep("cart")}>
                 Back
               </Button>
-              <Button type="submit" size="lg" className="flex-1" disabled={busy}>
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : `Place order · ${money(total)}`}
+              <Button type="submit" size="lg" className="flex-1" disabled={busy || cfg.mode === "loading" || cfg.mode === "none"}>
+                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : cfg.mode === "square" ? `Pay ${money(total)}` : `Place order · ${money(total)}`}
               </Button>
             </div>
           </form>

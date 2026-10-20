@@ -1,5 +1,6 @@
 import { PHOTOS } from "@/data/menu";
 import { Reveal } from "@/components/reveal";
+import { useOrderConfig } from "@/lib/config";
 
 const cards = [
   { title: "Deli Delights", img: PHOTOS.turkey, text: "Hearty, stacked deli classics." },
@@ -8,6 +9,7 @@ const cards = [
 ];
 
 export function About() {
+  const { delivery } = useOrderConfig();
   return (
     <section id="about" className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
       <Reveal className="grid gap-12 md:grid-cols-2 md:gap-20">
@@ -25,7 +27,7 @@ export function About() {
           </p>
           <p>
             Your go-to spot for delicious deli sandwiches, classic diner favorites, and flavorful Tex-Mex, right here at
-            50 Southlawn Court. Order online for quick pickup or delivery and enjoy your favorites from the comfort of home.
+            50 Southlawn Court. Order online for quick pickup{delivery ? " or delivery" : ""} and enjoy your favorites.
           </p>
         </div>
       </Reveal>

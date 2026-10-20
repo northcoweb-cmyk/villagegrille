@@ -4,6 +4,7 @@ import { MENU, INFO, thumb, type MenuItem } from "@/data/menu";
 import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
 import { Reveal } from "@/components/reveal";
+import { useOrderConfig } from "@/lib/config";
 
 const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuItem; qty: number; add: (i: MenuItem) => void; open: (i: MenuItem) => void }) {
   const [flash, setFlash] = useState(false);
@@ -59,6 +60,7 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuIt
 
 export function OrderMenu() {
   const { dispatch, lines, openItem } = useCart();
+  const { delivery } = useOrderConfig();
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
 
@@ -85,7 +87,7 @@ export function OrderMenu() {
     <section id="order" className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-10 md:pt-40">
       <Reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">Order online · pickup or delivery</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">Order online · {delivery ? "pickup or delivery" : "pickup"}</p>
           <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">Our menu</h1>
           <p className="mt-3 text-zinc-600">ASAP · about 30 mins · {INFO.address}</p>
         </div>

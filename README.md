@@ -17,6 +17,7 @@ npm run build
 ## Server functions (`api/`, deployed as Vercel functions)
 
 - `api/chat.ts`: AI chat assistant (Claude via `@anthropic-ai/sdk`), grounded on `src/data/menu.ts`; unsure answers point to the restaurant phone number. Falls back to `src/lib/chat-local.ts` if unavailable.
-- `api/order.ts`: validates the order, recomputes prices from the menu, and emails it to the restaurant via Resend.
+- `api/order.ts`: validates the order, recomputes prices from the menu, creates the Square order (ticket) and charges the card, and emails the restaurant/customer via Resend. `api/config.ts` tells the site which mode it is in.
+- Setup guide: `SETUP.md`.
 - Environment variables: see `.env.example`.
 - Item customizations (removals, extras, notes): `src/data/customizations.ts` and `src/components/item-modal.tsx`.

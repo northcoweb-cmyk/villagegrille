@@ -13,16 +13,19 @@ export interface OrderDetails {
 export interface OrderPayload {
   details: OrderDetails;
   lines: CartLine[];
+  /** one-time Square card token (card mode only) */
+  paymentToken?: string;
 }
 
-export class OrderError extends Error {}
+/** kind "payment": the card was declined (message is safe to show); "send": the order could not be placed. */
+export class OrderError extends Error {
+  constructor(public kind: "payment" | "send", message = "") {
+    super(message);
+  }
+}
 
-/**
- * Sends the order to the restaurant through /api/order (see api/order.ts), which emails it.
- * Throws OrderError if it could not be delivered. The caller must NOT tell the guest the order went
- * through in that case; it should keep the cart and ask them to call.
- */
-export async function submitOrder({ details, lines }: OrderPayload): Promise<{ confirmation: string }> {
+/** Places the order through /api/order (see api/order.ts). Throws OrderError unless the order really went through. */
+export async function submitOrder({ details, lines, paymentToken }: OrderPayload): Promise<{ confirmation: string; paid: boolean }> {
   let res: Response;
   try {
     res = await fetch("/api/order", {
@@ -30,20 +33,15 @@ export async function submitOrder({ details, lines }: OrderPayload): Promise<{ c
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         details,
-        lines: lines.map((l) => ({
-          id: l.item.id,
-          qty: l.qty,
-          removed: l.mods.removed,
-          extras: l.mods.extras,
-          note: l.mods.note,
-        })),
+        paymentToken,
+        lines: lines.map((l) => ({ id: l.item.id, qty: l.qty, removed: l.mods.removed, extras: l.mods.extras, note: l.mods.note })),
       }),
     });
   } catch {
-    throw new OrderError("network");
+    throw new OrderError("send");
   }
-  if (!res.ok) throw new OrderError(String(res.status));
   const data = await res.json().catch(() => null);
-  if (!data?.confirmation) throw new OrderError("bad_response");
-  return { confirmation: data.confirmation };
+  if (res.status === 402 && data?.message) throw new OrderError("payment", data.message);
+  if (!res.ok || !data?.confirmation) throw new OrderError("send");
+  return { confirmation: data.confirmation, paid: !!data.paid };
 }
