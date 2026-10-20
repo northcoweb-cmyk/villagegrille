@@ -170,10 +170,10 @@ export function CartDrawer() {
                 <CardForm ref={card} appId={cfg.squareAppId} locationId={cfg.squareLocationId} env={cfg.squareEnv} />
               )}
               {error?.kind === "payment" && <p className="rounded-xl bg-red-50 p-3 text-red-800">{error.message}</p>}
-              {(error?.kind === "send" || cfg.mode === "none") && (
+              {error?.kind === "send" && (
                 <div className="rounded-xl bg-red-50 p-4 text-red-800">
-                  <p className="font-semibold">{cfg.mode === "none" ? "Online ordering isn't available right now." : "We couldn't send your order online."}</p>
-                  <p className="mt-1">{cfg.mode === "none" ? "Please call us to place your order:" : "Your cart is saved. Please call us to place it:"}</p>
+                  <p className="font-semibold">We couldn't send your order online.</p>
+                  <p className="mt-1">Your cart is saved. Please call us to place it:</p>
                   <a href={INFO.phoneHref} className="mt-2 inline-flex items-center gap-2 font-bold underline">
                     <Phone className="h-4 w-4" /> {INFO.phone}
                   </a>
@@ -185,7 +185,7 @@ export function CartDrawer() {
               <Button type="button" variant="outline" size="lg" onClick={() => setStep("cart")}>
                 Back
               </Button>
-              <Button type="submit" size="lg" className="flex-1" disabled={busy || cfg.mode === "loading" || cfg.mode === "none"}>
+              <Button type="submit" size="lg" className="flex-1" disabled={busy}>
                 {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : cfg.mode === "square" ? `Pay ${money(total)}` : `Place order · ${money(total)}`}
               </Button>
             </div>

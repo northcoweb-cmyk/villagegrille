@@ -10,6 +10,8 @@ if (typeof window !== "undefined") {
 export interface NavLinkItem {
   label: string;
   href: string;
+  /** opens in a new tab */
+  external?: boolean;
 }
 
 const defaultLinks: NavLinkItem[] = [
@@ -344,7 +346,7 @@ export function Component({ links = defaultLinks, hint = "click me", logoSrc, ri
               <ul className="menu-list">
                 {links.slice(0, 5).map((l, i) => (
                   <li className="menu-list-item" data-shape={i + 1} key={l.label}>
-                    <a href={l.href} className="nav-link w-inline-block" onClick={closeMenu}>
+                    <a href={l.href} className="nav-link w-inline-block" onClick={closeMenu} {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
                       <p className="nav-link-text">{l.label}</p>
                       <div className="nav-link-hover-bg"></div>
                     </a>

@@ -3,6 +3,7 @@ import { MENU, PHOTOS } from "@/data/menu";
 import { Reveal } from "@/components/reveal";
 import { money } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
+import { useOrderConfig } from "@/lib/config";
 
 const all = MENU.flatMap((c) => c.items);
 const pick = (name: string, image: string) => ({ ...all.find((i) => i.name === name)!, image });
@@ -18,6 +19,7 @@ const picks = [
 
 export function Favorites() {
   const { openItem } = useCart();
+  const { mode } = useOrderConfig();
   return (
     <section id="favorites" className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
       <Reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -26,7 +28,7 @@ export function Favorites() {
           <h2 className="text-4xl font-extrabold tracking-tight md:text-6xl">Crowd pleasers.</h2>
         </div>
         <a href="/menu" className="inline-flex items-center gap-2 font-bold text-brand hover:underline">
-          See the full menu <ArrowUpRight className="h-5 w-5" />
+          View the full menu <ArrowUpRight className="h-5 w-5" />
         </a>
       </Reveal>
 
@@ -36,7 +38,7 @@ export function Favorites() {
             <button
               type="button"
               onClick={() => openItem(p)}
-              aria-label={`Customize and order ${p.name}`}
+              aria-label={mode === "link" ? `View ${p.name}` : `Customize and order ${p.name}`}
               className="group block w-full overflow-hidden rounded-3xl border border-black/10 bg-zinc-50 text-left transition-colors hover:bg-white"
             >
               <div className="aspect-[4/3] overflow-hidden">
@@ -57,7 +59,7 @@ export function Favorites() {
                 </div>
                 <span className="rounded-full bg-brand-tint px-3 py-1 text-sm font-bold text-brand">{money(p.price)}</span>
               </div>
-              <p className="px-6 pb-6 text-sm font-bold text-brand">Customize &amp; order →</p>
+              <p className="px-6 pb-6 text-sm font-bold text-brand">{mode === "link" ? "See details →" : "Customize & order →"}</p>
             </button>
           </Reveal>
         ))}

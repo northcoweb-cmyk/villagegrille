@@ -3,6 +3,7 @@ import { Clock, MapPin, Navigation, Phone, Star } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, REVIEWS } from "@/data/menu";
 import { Reveal } from "@/components/reveal";
+import { useOrderConfig } from "@/lib/config";
 
 export function Reviews() {
   return (
@@ -96,13 +97,19 @@ export function Visit() {
 }
 
 export function OrderCta() {
+  const { mode } = useOrderConfig();
+  const link = mode === "link";
   return (
     <section className="bg-brand text-white">
       <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-16 md:flex-row md:items-center md:px-10">
         <h2 className="max-w-xl text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
           Order online and get your favorites today.
         </h2>
-        <a href="/menu" className={buttonVariants({ size: "lg" }) + " !bg-white !text-brand hover:!bg-zinc-100"}>
+        <a
+          href={link ? INFO.orderUrl : "/menu"}
+          {...(link ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className={buttonVariants({ size: "lg" }) + " !bg-white !text-brand hover:!bg-zinc-100"}
+        >
           Start your order
         </a>
       </div>

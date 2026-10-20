@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 
 export interface OrderConfig {
-  /** "loading" until /api/config answers; "none" also covers a missing or broken server */
-  mode: "loading" | "square" | "email" | "none";
+  /** "link" (default): ordering happens on the restaurant's existing ordering page */
+  mode: "link" | "square" | "email";
   squareAppId: string | null;
   squareLocationId: string | null;
   squareEnv: "sandbox" | "production";
   delivery: boolean;
 }
 
-const INITIAL: OrderConfig = { mode: "loading", squareAppId: null, squareLocationId: null, squareEnv: "sandbox", delivery: false };
+const INITIAL: OrderConfig = { mode: "link", squareAppId: null, squareLocationId: null, squareEnv: "sandbox", delivery: true };
 let cache: OrderConfig | null = null;
 let pending: Promise<OrderConfig> | null = null;
 
@@ -17,7 +17,7 @@ function load(): Promise<OrderConfig> {
   pending ??= fetch("/api/config")
     .then((r) => (r.ok ? r.json() : Promise.reject()))
     .then((c): OrderConfig => ({ ...INITIAL, ...c }))
-    .catch((): OrderConfig => ({ ...INITIAL, mode: "none" }))
+    .catch((): OrderConfig => INITIAL)
     .then((c) => (cache = c));
   return pending;
 }

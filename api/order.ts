@@ -86,8 +86,9 @@ export default async function handler(req: Req, res: Res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method_not_allowed" });
 
   const env = process.env;
-  const squareOn = !!(env.SQUARE_ACCESS_TOKEN && env.SQUARE_LOCATION_ID && env.SQUARE_APPLICATION_ID);
-  const emailOn = !!(env.RESEND_API_KEY && env.ORDER_EMAIL_TO);
+  // must match api/config.ts: nothing here runs unless ORDER_MODE is set on purpose
+  const squareOn = env.ORDER_MODE === "square" && !!(env.SQUARE_ACCESS_TOKEN && env.SQUARE_LOCATION_ID && env.SQUARE_APPLICATION_ID);
+  const emailOn = env.ORDER_MODE === "email" && !!(env.RESEND_API_KEY && env.ORDER_EMAIL_TO);
   if (!squareOn && !emailOn) return res.status(503).json({ error: "not_configured" });
 
   const ip = String(req.headers["x-forwarded-for"] ?? req.socket?.remoteAddress ?? "unknown").split(",")[0].trim();

@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, Phone } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, PHOTOS } from "@/data/menu";
 import { useOrderConfig } from "@/lib/config";
@@ -21,11 +21,11 @@ export function Hero() {
             Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup{delivery ? " or delivery" : ""}.
           </p>
           <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
-            <a href="/menu" className={buttonVariants({ size: "lg" })}>
-              Order online <ArrowRight className="h-5 w-5" />
+            <a href={INFO.orderUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ size: "lg" })}>
+              Order online <ExternalLink className="h-5 w-5" />
             </a>
-            <a href={INFO.phoneHref} className={buttonVariants({ size: "lg", variant: "outline" })}>
-              <Phone className="h-5 w-5" /> {INFO.phone}
+            <a href="/menu" className={buttonVariants({ size: "lg", variant: "outline" })}>
+              View the menu
             </a>
           </div>
         </div>

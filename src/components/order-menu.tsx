@@ -1,12 +1,13 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { Plus, Search, Check } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { MENU, INFO, thumb, type MenuItem } from "@/data/menu";
 import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
 import { Reveal } from "@/components/reveal";
 import { useOrderConfig } from "@/lib/config";
 
-const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuItem; qty: number; add: (i: MenuItem) => void; open: (i: MenuItem) => void }) {
+const ItemCard = memo(function ItemCard({ item, qty, add, open, canAdd }: { item: MenuItem; qty: number; add: (i: MenuItem) => void; open: (i: MenuItem) => void; canAdd: boolean }) {
   const [flash, setFlash] = useState(false);
 
   const onAdd = (e: React.MouseEvent) => {
@@ -20,7 +21,7 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuIt
     <li
       role="button"
       tabIndex={0}
-      aria-label={`Customize ${item.name}`}
+      aria-label={canAdd ? `Customize ${item.name}` : `View ${item.name}`}
       onClick={() => open(item)}
       onKeyDown={(e) => e.key === "Enter" && open(item)}
       className="flex cursor-pointer gap-4 rounded-2xl border border-black/10 bg-zinc-50 p-4 transition-colors hover:border-brand/40 hover:bg-white"
@@ -41,7 +42,7 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuIt
         {item.desc && <p className="mt-1 line-clamp-3 text-sm text-zinc-600">{item.desc}</p>}
         <div className="mt-auto flex items-center justify-between pt-3">
           <span className="font-semibold text-brand">{money(item.price)}</span>
-          <button
+          {canAdd && <button
             onClick={onAdd}
             aria-label={`Add ${item.name} to cart`}
             className={cn(
@@ -51,7 +52,7 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuIt
           >
             {flash ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {flash ? "Added" : qty > 0 ? qty : "Add"}
-          </button>
+          </button>}
         </div>
       </div>
     </li>
@@ -60,7 +61,8 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open }: { item: MenuIt
 
 export function OrderMenu() {
   const { dispatch, lines, openItem } = useCart();
-  const { delivery } = useOrderConfig();
+  const { delivery, mode } = useOrderConfig();
+  const canAdd = mode !== "link";
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
 
@@ -87,10 +89,21 @@ export function OrderMenu() {
     <section id="order" className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-10 md:pt-40">
       <Reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">Order online · {delivery ? "pickup or delivery" : "pickup"}</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">{canAdd ? <>Order online · {delivery ? "pickup or delivery" : "pickup"}</> : "Browse the menu"}</p>
           <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">Our menu</h1>
-          <p className="mt-3 text-zinc-600">ASAP · about 30 mins · {INFO.address}</p>
+          <p className="mt-3 text-zinc-600">{canAdd ? `ASAP · about 30 mins · ${INFO.address}` : "Tap any dish for details. Ready to order? Use the button, we'll open our online ordering page."}</p>
         </div>
+        <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
+        {!canAdd && (
+          <a
+            href={INFO.orderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand px-6 font-bold text-white transition hover:bg-brand-dark"
+          >
+            Order online <ExternalLink className="h-4 w-4" />
+          </a>
+        )}
         <label className="relative block w-full md:w-80">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
           <input
@@ -100,6 +113,7 @@ export function OrderMenu() {
             className="h-12 w-full rounded-full border border-black/10 bg-zinc-100 pl-11 pr-4 text-sm outline-none transition placeholder:text-zinc-500 focus:border-brand"
           />
         </label>
+        </div>
       </Reveal>
 
       <div className="sticky top-16 z-30 -mx-5 mb-10 overflow-x-auto bg-white px-5 py-3 md:-mx-10 md:px-10 [scrollbar-width:none]">
@@ -131,7 +145,7 @@ export function OrderMenu() {
             </h2>
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
-                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} open={openItem} />
+                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} open={openItem} canAdd={canAdd} />
               ))}
             </ul>
           </div>

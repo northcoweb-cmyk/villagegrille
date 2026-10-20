@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { MessageCircle, Phone, Send, X } from "lucide-react";
+import { ExternalLink, MessageCircle, Phone, Send, X } from "lucide-react";
 import { INFO } from "@/data/menu";
 import { FALLBACK, localAnswer } from "@/lib/chat-local";
 import { cn } from "@/lib/utils";
@@ -103,6 +103,16 @@ export function Chatbot() {
               >
                 {m.content}
               </p>
+              {m.role === "assistant" && m.content.includes("order.yourmenu.com") && (
+                <a
+                  href={INFO.orderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-dark"
+                >
+                  Order online <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
               {m.role === "assistant" && (m.content.includes(INFO.phone) || m.content === FALLBACK) && i > 0 && (
                 <a
                   href={INFO.phoneHref}

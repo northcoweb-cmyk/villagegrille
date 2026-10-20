@@ -1,12 +1,21 @@
-# Setup: orders, payments, emails
+# Setup
 
-How checkout behaves depends on which settings exist (`/api/config` reports the mode):
+## Default: nothing to configure
+The site is a front door for the restaurant. **Order online** opens their existing ordering page
+(`INFO.orderUrl` in `src/data/menu.ts`, currently https://order.yourmenu.com/villagegrille), so tickets keep arriving in their POS exactly as today.
+Deploy to Vercel (import the repo, defaults are fine) and it works. The only optional piece is the AI chat assistant (`ANTHROPIC_API_KEY`); without it the chat uses built-in answers.
+
+## Optional: the site's own checkout (not the default)
+Only if the restaurant ever wants orders placed on this site instead of their current page. It stays off unless `ORDER_MODE` is set
+to `square` or `email`; having keys in the environment is not enough.
+
+With `ORDER_MODE` set, checkout depends on which settings exist (`/api/config` reports the mode):
 
 | Settings present | Checkout mode |
 |---|---|
-| Square (4 vars) | Card payment on the site; paid order appears as a ticket in the Square POS; email copy if Resend is set |
-| Resend only (`RESEND_API_KEY`, `ORDER_EMAIL_TO`) | Order is emailed; customer pays at pickup |
-| Nothing | Checkout tells the customer to call the restaurant |
+| `ORDER_MODE=square` + Square (3 vars) | Card payment on the site; paid order appears as a ticket in the Square POS; email copy if Resend is set |
+| `ORDER_MODE=email` + `RESEND_API_KEY`, `ORDER_EMAIL_TO` | Order is emailed; customer pays at pickup |
+| Not set (default) | Order online opens the restaurant's existing ordering page |
 
 ## 1. Deploy (Vercel)
 1. vercel.com > Add New Project > import `northcoweb-cmyk/villagegrille` > Deploy (defaults are fine).
