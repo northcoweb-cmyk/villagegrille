@@ -32,6 +32,9 @@ export interface Receipt {
   demo?: boolean;
   notes?: string;
   logoUrl: string;
+  /** Google Business Profile / reviews link, and the Google "G" image */
+  reviewUrl: string;
+  googleLogoUrl: string;
   restaurant: { name: string; address: string; phone: string; phoneHref: string; mapsUrl: string; hours: [string, string][] };
 }
 
@@ -132,6 +135,25 @@ export function renderReceipt(r: Receipt): { subject: string; html: string; text
       ${r.demo ? `<div style="margin-top:14px;padding:11px 14px;background:#fff7e6;border-radius:10px;font-size:13px;font-weight:600;color:#8a5a00;">Demo order &middot; no payment was taken and nothing was sent to the restaurant.</div>` : r.paidWith ? `<div style="margin-top:14px;padding:11px 14px;background:#eef7f0;border-radius:10px;font-size:13px;font-weight:600;color:#1d6b35;">&#10003;&nbsp; Paid &middot; ${esc(r.paidWith)}</div>` : ""}
       ${r.notes ? `<div style="margin-top:14px;padding:11px 14px;background:#faf6f6;border-radius:10px;font-size:13px;color:${INK};"><b>Order notes:</b> ${esc(r.notes)}</div>` : ""}
 
+      <!-- google review -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:26px;border:1px solid ${LINE};border-radius:14px;">
+        <tr>
+          <td width="62" valign="top" style="padding:20px 0 0 20px;">
+            <img src="${esc(r.googleLogoUrl)}" width="40" height="40" alt="Google" style="display:block;border:0;width:40px;height:40px;">
+          </td>
+          <td valign="top" style="padding:19px 20px 0 12px;">
+            <div style="font-size:17px;font-weight:800;color:${INK};line-height:22px;">Enjoyed your order?</div>
+            <div style="margin-top:3px;font-size:14px;line-height:20px;color:${MUTED};">Leave us a review on Google. It means a lot to a local spot.</div>
+            <div style="margin-top:6px;font-size:19px;letter-spacing:2px;color:#fbbc05;line-height:22px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center" style="padding:14px 20px 20px;">
+            <a href="${esc(r.reviewUrl)}" style="display:block;padding:13px 18px;border-radius:999px;border:1.5px solid #dadce0;background:#ffffff;font-size:15px;font-weight:700;color:#1a73e8;text-decoration:none;text-align:center;font-family:${FONT};">Review us on Google</a>
+          </td>
+        </tr>
+      </table>
+
       <!-- button -->
       <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:30px auto 18px;"><tr>
         <td bgcolor="${BRAND}" style="background:${BRAND};border-radius:999px;"><a href="${esc(r.restaurant.mapsUrl)}" style="display:inline-block;padding:14px 30px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;font-family:${FONT};">Get directions</a></td>
@@ -175,6 +197,8 @@ export function renderReceipt(r: Receipt): { subject: string; html: string; text
     `Total:    ${usd(r.totalC)}`,
     ...(r.demo ? ["DEMO ORDER - no payment was taken and nothing was sent to the restaurant."] : r.paidWith ? [`Paid - ${r.paidWith}`] : []),
     ...(r.notes ? ["", `Order notes: ${r.notes}`] : []),
+    "",
+    `Enjoyed your order? Leave us a review on Google: ${r.reviewUrl}`,
     "",
     `Questions? Call ${r.restaurant.phone}`,
     `${r.restaurant.name} - ${r.restaurant.address}`,

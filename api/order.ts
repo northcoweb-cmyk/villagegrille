@@ -171,6 +171,8 @@ export default async function handler(req: Req, res: Res) {
       demo: true,
       notes: notes || undefined,
       logoUrl: `${base0}/logo.png`,
+      reviewUrl: process.env.GOOGLE_REVIEW_URL || INFO.social.Google,
+      googleLogoUrl: `${base0}/google-g.png`,
       restaurant: { name: INFO.name, address: INFO.address, phone: INFO.phone, phoneHref: INFO.phoneHref, mapsUrl: INFO.mapsUrl, hours: INFO.hours },
     });
     const emailedD = await emailCustomer(email, receipt.subject, receipt.html, receipt.text);
@@ -272,6 +274,8 @@ export default async function handler(req: Req, res: Res) {
     paidWith: paidWith ?? "Card",
     notes: notes || undefined,
     logoUrl: `${base}/logo.png`,
+    reviewUrl: process.env.GOOGLE_REVIEW_URL || INFO.social.Google,
+    googleLogoUrl: `${base}/google-g.png`,
     restaurant: { name: INFO.name, address: INFO.address, phone: INFO.phone, phoneHref: INFO.phoneHref, mapsUrl: INFO.mapsUrl, hours: INFO.hours },
   });
   const emailed = await emailCustomer(email, receipt.subject, receipt.html, receipt.text);
