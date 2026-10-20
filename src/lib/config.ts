@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export interface OrderConfig {
   /** "link" (default): ordering happens on the restaurant's existing ordering page */
-  mode: "link" | "square";
+  mode: "link" | "square" | "demo";
   squareAppId: string | null;
   squareLocationId: string | null;
   squareEnv: "sandbox" | "production";

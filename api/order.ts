@@ -3,7 +3,7 @@ import { MENU, INFO } from "../src/data/menu.js";
 import { renderReceipt } from "./_email.js";
 
 /**
- * POST /api/order  (only active when ORDER_MODE=square)
+ * POST /api/order  (only active when ORDER_MODE=square, or ORDER_MODE=demo which skips Square and payment)
  *
  *   1. create an Order in the restaurant's Square with a PICKUP fulfillment (this is the ticket the POS/KDS shows once paid)
  *   2. charge the card token against that order (amount = Square's own order total)
@@ -35,13 +35,17 @@ const WHEN: Record<string, { label: string; mins: number }> = {
 };
 
 const hits = new Map<string, number[]>();
-function limited(ip: string) {
+let global: number[] = [];
+function limited(ip: string, demo: boolean) {
   const now = Date.now();
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < 10 * 60_000);
   recent.push(now);
   hits.set(ip, recent);
   if (hits.size > 5000) hits.clear();
-  return recent.length > 8;
+  // demo mode emails arbitrary addresses from the restaurant-demo sender, so keep it tight
+  global = global.filter((t) => now - t < 60 * 60_000);
+  global.push(now);
+  return demo ? recent.length > 5 || global.length > 40 : recent.length > 8;
 }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -67,7 +71,7 @@ async function emailCustomer(to: string, subject: string, html: string, text: st
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: process.env.ORDER_EMAIL_FROM || `${INFO.name} <onboarding@resend.dev>`,
+        from: fromAddress(),
         to: [to],
         reply_to: process.env.ORDER_EMAIL_REPLY_TO || undefined,
         subject,
@@ -81,8 +85,16 @@ async function emailCustomer(to: string, subject: string, html: string, text: st
   }
 }
 
+/** "support@x.com" or "Name <support@x.com>"; a bare address gets the restaurant name as its display name. */
+function fromAddress() {
+  const v = (process.env.ORDER_EMAIL_FROM || "").trim();
+  if (!v) return `${INFO.name} <onboarding@resend.dev>`;
+  return v.includes("<") ? v : `${INFO.name} <${v}>`;
+}
+
 function siteUrl(req: Req) {
-  if (process.env.SITE_URL) return process.env.SITE_URL.replace(/\/$/, "");
+  const s = (process.env.SITE_URL || "").trim();
+  if (s) return (/^https?:\/\//.test(s) ? s : `https://${s}`).replace(/\/$/, "");
   const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
   return host ? `https://${host}` : "";
 }
@@ -92,12 +104,12 @@ export default async function handler(req: Req, res: Res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method_not_allowed" });
 
   const env = process.env;
-  if (env.ORDER_MODE !== "square" || !(env.SQUARE_ACCESS_TOKEN && env.SQUARE_LOCATION_ID && env.SQUARE_APPLICATION_ID)) {
-    return res.status(503).json({ error: "not_configured" });
-  }
+  const demo = env.ORDER_MODE === "demo";
+  const squareOn = env.ORDER_MODE === "square" && !!(env.SQUARE_ACCESS_TOKEN && env.SQUARE_LOCATION_ID && env.SQUARE_APPLICATION_ID);
+  if (!demo && !squareOn) return res.status(503).json({ error: "not_configured" });
 
   const ip = String(req.headers["x-forwarded-for"] ?? req.socket?.remoteAddress ?? "unknown").split(",")[0].trim();
-  if (limited(ip)) return res.status(429).json({ error: "rate_limited" });
+  if (limited(ip, demo)) return res.status(429).json({ error: "rate_limited" });
 
   const body = (req.body ?? {}) as { details?: Record<string, unknown>; lines?: unknown; paymentToken?: unknown };
   const d = body.details ?? {};
@@ -115,7 +127,7 @@ export default async function handler(req: Req, res: Res) {
     if (env.ENABLE_DELIVERY !== "true") return res.status(400).json({ error: "delivery_unavailable" });
     if (!address) return res.status(400).json({ error: "bad_details" });
   }
-  if (!paymentToken) return res.status(400).json({ error: "payment_required" });
+  if (!demo && !paymentToken) return res.status(400).json({ error: "payment_required" });
   if (!Array.isArray(body.lines) || !body.lines.length || body.lines.length > 40) return res.status(400).json({ error: "bad_lines" });
 
   let subtotalC = 0;
@@ -136,6 +148,33 @@ export default async function handler(req: Req, res: Res) {
   }
   const taxC = Math.round(subtotalC * TAX_RATE);
   const confirmation = "VG-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+
+  const readyAtDemo = new Date(Date.now() + (when.mins || 30) * 60_000);
+  const base0 = siteUrl(req);
+  if (demo) {
+    // Demo: no Square, no payment, nothing sent to the restaurant. Only the customer gets the confirmation email.
+    const totalD = subtotalC + taxC;
+    const receipt = renderReceipt({
+      confirmation,
+      firstName: name.split(/\s+/)[0],
+      name,
+      phone,
+      readyAt: clock(readyAtDemo),
+      whenLabel: when.label,
+      method,
+      deliveryAddress: address,
+      items: receiptItems,
+      subtotalC,
+      taxC,
+      totalC: totalD,
+      demo: true,
+      notes: notes || undefined,
+      logoUrl: `${base0}/logo.png`,
+      restaurant: { name: INFO.name, address: INFO.address, phone: INFO.phone, phoneHref: INFO.phoneHref, mapsUrl: INFO.mapsUrl, hours: INFO.hours },
+    });
+    const emailedD = await emailCustomer(email, receipt.subject, receipt.html, receipt.text);
+    return res.status(200).json({ confirmation, paid: false, demo: true, emailed: emailedD, total: totalD / 100 });
+  }
 
   const client = new SquareClient({
     token: env.SQUARE_ACCESS_TOKEN,

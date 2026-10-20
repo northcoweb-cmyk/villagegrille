@@ -28,6 +28,8 @@ export interface Receipt {
   totalC: number;
   /** e.g. "Visa ending 4242" */
   paidWith?: string;
+  /** demo order: nothing was sent to the restaurant and no payment was taken */
+  demo?: boolean;
   notes?: string;
   logoUrl: string;
   restaurant: { name: string; address: string; phone: string; phoneHref: string; mapsUrl: string; hours: [string, string][] };
@@ -127,7 +129,7 @@ export function renderReceipt(r: Receipt): { subject: string; html: string; text
         ${totalRow("Tax (6%)", usd(r.taxC))}
         ${totalRow("Total", usd(r.totalC), true)}
       </table>
-      ${r.paidWith ? `<div style="margin-top:14px;padding:11px 14px;background:#eef7f0;border-radius:10px;font-size:13px;font-weight:600;color:#1d6b35;">&#10003;&nbsp; Paid &middot; ${esc(r.paidWith)}</div>` : ""}
+      ${r.demo ? `<div style="margin-top:14px;padding:11px 14px;background:#fff7e6;border-radius:10px;font-size:13px;font-weight:600;color:#8a5a00;">Demo order &middot; no payment was taken and nothing was sent to the restaurant.</div>` : r.paidWith ? `<div style="margin-top:14px;padding:11px 14px;background:#eef7f0;border-radius:10px;font-size:13px;font-weight:600;color:#1d6b35;">&#10003;&nbsp; Paid &middot; ${esc(r.paidWith)}</div>` : ""}
       ${r.notes ? `<div style="margin-top:14px;padding:11px 14px;background:#faf6f6;border-radius:10px;font-size:13px;color:${INK};"><b>Order notes:</b> ${esc(r.notes)}</div>` : ""}
 
       <!-- button -->
@@ -171,7 +173,7 @@ export function renderReceipt(r: Receipt): { subject: string; html: string; text
     `Subtotal: ${usd(r.subtotalC)}`,
     `Tax (6%): ${usd(r.taxC)}`,
     `Total:    ${usd(r.totalC)}`,
-    ...(r.paidWith ? [`Paid - ${r.paidWith}`] : []),
+    ...(r.demo ? ["DEMO ORDER - no payment was taken and nothing was sent to the restaurant."] : r.paidWith ? [`Paid - ${r.paidWith}`] : []),
     ...(r.notes ? ["", `Order notes: ${r.notes}`] : []),
     "",
     `Questions? Call ${r.restaurant.phone}`,

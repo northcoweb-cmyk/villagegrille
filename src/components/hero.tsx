@@ -6,7 +6,8 @@ import { useOrderConfig } from "@/lib/config";
 const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers", "Hot Subs", "Breakfast", "Pizza", "Wraps"];
 
 export function Hero() {
-  const { delivery } = useOrderConfig();
+  const { delivery, mode } = useOrderConfig();
+  const here = mode !== "link";
   return (
     <section id="top" className="relative overflow-hidden pt-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
@@ -21,12 +22,18 @@ export function Hero() {
             Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup{delivery ? " or delivery" : ""}.
           </p>
           <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
-            <a href={INFO.orderUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ size: "lg" })}>
-              Order online <ExternalLink className="h-5 w-5" />
+            <a
+              href={here ? "/menu" : INFO.orderUrl}
+              {...(here ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+              className={buttonVariants({ size: "lg" })}
+            >
+              Order online {!here && <ExternalLink className="h-5 w-5" />}
             </a>
-            <a href="/menu" className={buttonVariants({ size: "lg", variant: "outline" })}>
-              View the menu
-            </a>
+            {!here && (
+              <a href="/menu" className={buttonVariants({ size: "lg", variant: "outline" })}>
+                View the menu
+              </a>
+            )}
           </div>
         </div>
 

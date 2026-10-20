@@ -89,7 +89,7 @@ export function CartDrawer() {
             <CheckCircle2 className="h-16 w-16 text-emerald-600" />
             <h3 className="font-display text-3xl font-extrabold">Thanks, {d.name.split(" ")[0]}!</h3>
             <p className="text-zinc-600">
-              Order <span className="font-semibold text-zinc-950">{confirmation}</span> is paid and on its way to the kitchen. {emailed ? `A receipt is on its way to ${d.email}.` : "We couldn't email your receipt, so please save this order number."} If anything changes they'll contact you at {d.phone}.</p>
+              Order <span className="font-semibold text-zinc-950">{confirmation}</span> {cfg.mode === "demo" ? "was placed as a demo. Nothing was sent to the restaurant." : "is paid and on its way to the kitchen."} {emailed ? `A receipt is on its way to ${d.email}.` : "We couldn't email your receipt, so please save this order number."} {cfg.mode === "demo" ? "" : ` If anything changes they'll contact you at ${d.phone}.`}</p>
             <Button onClick={close} className="mt-4">
               Done
             </Button>
@@ -166,6 +166,11 @@ export function CartDrawer() {
             </div>
             <Totals subtotal={subtotal} tax={tax} total={total} />
             <div className="flex-none space-y-3 px-5 pb-3 text-sm">
+              {cfg.mode === "demo" && (
+                <p className="rounded-xl bg-amber-50 p-3 text-amber-900">
+                  <span className="font-semibold">Demo mode:</span> no payment is taken and nothing is sent to the restaurant. You'll get a confirmation email.
+                </p>
+              )}
               {cfg.mode === "square" && cfg.squareAppId && cfg.squareLocationId && (
                 <CardForm ref={card} appId={cfg.squareAppId} locationId={cfg.squareLocationId} env={cfg.squareEnv} />
               )}
@@ -185,7 +190,7 @@ export function CartDrawer() {
                 Back
               </Button>
               <Button type="submit" size="lg" className="flex-1" disabled={busy}>
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : `Pay ${money(total)}`}
+                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : cfg.mode === "demo" ? `Place demo order · ${money(total)}` : `Pay ${money(total)}`}
               </Button>
             </div>
           </form>

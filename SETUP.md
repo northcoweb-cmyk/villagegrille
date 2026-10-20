@@ -4,6 +4,12 @@
 **Order online** opens the restaurant's existing ordering page (`INFO.orderUrl` in `src/data/menu.ts`), so their POS tickets keep
 arriving exactly as today. Deploy to Vercel (import the repo, defaults are fine) and it works.
 
+## Demo mode (to show the restaurant how it would work)
+Set `ORDER_MODE=demo` plus `RESEND_API_KEY`, `ORDER_EMAIL_FROM` (a verified sender) and `SITE_URL`, then redeploy. The site shows its own cart and checkout,
+but **no payment is taken and nothing is sent to any POS or to the restaurant**. The customer who places the "order" gets the full confirmation email
+(marked as a demo order, so nobody thinks lunch is coming). Because this sends email to whatever address is typed in, requests are rate limited,
+but turn it off after the demo by clearing `ORDER_MODE` and redeploying; the site goes back to handing off to the restaurant's existing ordering link.
+
 ## Optional: orders placed on this site land in their Square POS
 Turns on the site's own checkout: the customer pays by card on the site, the order is created in the restaurant's Square account as a
 pickup ticket, and the customer gets a receipt email. The restaurant is **not** emailed (the Square ticket is their copy).

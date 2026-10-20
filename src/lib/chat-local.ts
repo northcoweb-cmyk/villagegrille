@@ -36,7 +36,7 @@ const CATEGORY_WORDS: [RegExp, string][] = [
   [/kid|junior|\bjr\b/, "Junior Combos"],
 ];
 
-export function localAnswer(question: string): string {
+export function localAnswer(question: string, ordersHere = false): string {
   const q = question.toLowerCase();
 
   if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b/.test(q.trim()) && q.length < 25)
@@ -99,10 +99,14 @@ export function localAnswer(question: string): string {
   }
 
   if (/deliver/.test(q))
-    return `Yes, you can choose pickup or delivery when you order online at ${INFO.orderUrl}. For delivery details, you can also call ${INFO.phone}.`;
-  if (/pick ?up|take ?out|to go/.test(q)) return `Yes! Order online for pickup at ${INFO.orderUrl}. It's usually ready in about 30 minutes.`;
+    return ordersHere
+      ? `Online ordering here is for pickup. For delivery, please call ${INFO.phone}.`
+      : `Yes, you can choose pickup or delivery when you order online at ${INFO.orderUrl}. For delivery details, you can also call ${INFO.phone}.`;
+  if (/pick ?up|take ?out|to go/.test(q)) return ordersHere ? "Yes! Tap Order online and pick up your order in about 30 minutes." : `Yes! Order online for pickup at ${INFO.orderUrl}. It's usually ready in about 30 minutes.`;
   if (/order|online|menu/.test(q))
-    return `You can order online for pickup or delivery at ${INFO.orderUrl}. You can remove ingredients and add notes to any dish there.`;
+    return ordersHere
+      ? "Tap Order online, pick your dishes, and customize each one (remove ingredients, add notes). Then check out for pickup."
+      : `You can order online for pickup or delivery at ${INFO.orderUrl}. You can remove ingredients and add notes to any dish there.`;
   if (/what (do|kind)|serve|food|cuisine|about/.test(q))
     return "We serve deli sandwiches and subs, burgers, breakfast, pizza, wraps, salads and Tex-Mex, all in Rockville.";
 

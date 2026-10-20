@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ExternalLink, MessageCircle, Phone, Send, X } from "lucide-react";
 import { INFO } from "@/data/menu";
 import { FALLBACK, localAnswer } from "@/lib/chat-local";
+import { useOrderConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 interface Msg {
@@ -15,7 +16,7 @@ const HELLO: Msg = {
 };
 const SUGGESTIONS = ["What are your hours?", "Vegetarian options?", "Do you deliver?", "What's popular?"];
 
-async function ask(history: Msg[]): Promise<string> {
+async function ask(history: Msg[], ordersHere: boolean): Promise<string> {
   try {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20000);
@@ -33,7 +34,7 @@ async function ask(history: Msg[]): Promise<string> {
   } catch {
     /* fall through to the built-in answers */
   }
-  return localAnswer(history[history.length - 1].content);
+  return localAnswer(history[history.length - 1].content, ordersHere);
 }
 
 export function Chatbot() {
@@ -42,6 +43,7 @@ export function Chatbot() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+  const { mode } = useOrderConfig();
 
   useEffect(() => {
     end.current?.scrollIntoView({ block: "end" });
@@ -54,7 +56,7 @@ export function Chatbot() {
     setMsgs(next);
     setText("");
     setBusy(true);
-    const reply = await ask(next);
+    const reply = await ask(next, mode !== "link");
     setMsgs([...next, { role: "assistant", content: reply }]);
     setBusy(false);
   };

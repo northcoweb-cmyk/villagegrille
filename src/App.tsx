@@ -13,12 +13,13 @@ import { money } from "@/lib/utils";
 import { useParallax, useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { usePath, useLinkInterception } from "@/lib/router";
 
-const links = [
-  { label: "Order online", href: INFO.orderUrl, external: true },
-  { label: "Our menu", href: "/menu" },
+const navLinks = (ordersHere: boolean) => [
+  ordersHere ? { label: "Order online", href: "/menu" } : { label: "Order online", href: INFO.orderUrl, external: true },
+  ...(ordersHere ? [] : [{ label: "Our menu", href: "/menu" }]),
   { label: "About us", href: "/#about" },
   { label: "Reviews", href: "/#reviews" },
   { label: "Visit us", href: "/#visit" },
+  ...(ordersHere ? [{ label: "Favorites", href: "/#favorites" }] : []),
 ];
 
 function SiteNav() {
@@ -26,7 +27,7 @@ function SiteNav() {
   const { mode } = useOrderConfig();
   return (
     <KineticNav
-      links={links}
+      links={navLinks(mode !== "link")}
       hint="Hungry?"
       logoSrc="/logo.png"
       rightSlot={
