@@ -25,7 +25,7 @@ export class OrderError extends Error {
 }
 
 /** Places the order through /api/order (see api/order.ts). Throws OrderError unless the order really went through. */
-export async function submitOrder({ details, lines, paymentToken }: OrderPayload): Promise<{ confirmation: string; paid: boolean }> {
+export async function submitOrder({ details, lines, paymentToken }: OrderPayload): Promise<{ confirmation: string; paid: boolean; emailed: boolean }> {
   let res: Response;
   try {
     res = await fetch("/api/order", {
@@ -43,5 +43,5 @@ export async function submitOrder({ details, lines, paymentToken }: OrderPayload
   const data = await res.json().catch(() => null);
   if (res.status === 402 && data?.message) throw new OrderError("payment", data.message);
   if (!res.ok || !data?.confirmation) throw new OrderError("send");
-  return { confirmation: data.confirmation, paid: !!data.paid };
+  return { confirmation: data.confirmation, paid: !!data.paid, emailed: !!data.emailed };
 }

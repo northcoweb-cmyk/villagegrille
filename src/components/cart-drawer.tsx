@@ -19,7 +19,7 @@ export function CartDrawer() {
   const [step, setStep] = useState<Step>("cart");
   const [busy, setBusy] = useState(false);
   const [confirmation, setConfirmation] = useState("");
-  const [paid, setPaid] = useState(false);
+  const [emailed, setEmailed] = useState(true);
   const [error, setError] = useState<{ kind: "payment" | "send"; message: string } | null>(null);
   const cfg = useOrderConfig();
   const card = useRef<CardHandle>(null);
@@ -47,7 +47,7 @@ export function CartDrawer() {
         });
       }
       const res = await submitOrder({ details: d, lines, paymentToken });
-      setPaid(res.paid);
+      setEmailed(res.emailed);
       setConfirmation(res.confirmation);
       dispatch({ type: "clear" });
       setStep("done");
@@ -89,7 +89,7 @@ export function CartDrawer() {
             <CheckCircle2 className="h-16 w-16 text-emerald-600" />
             <h3 className="font-display text-3xl font-extrabold">Thanks, {d.name.split(" ")[0]}!</h3>
             <p className="text-zinc-600">
-              Order <span className="font-semibold text-zinc-950">{confirmation}</span> {paid ? `is paid and on its way to the kitchen. A receipt is going to ${d.email}.` : `was sent to the restaurant. You'll pay at ${d.method === "pickup" ? "pickup" : "delivery"}.`} If anything changes they'll contact you at {d.phone}.</p>
+              Order <span className="font-semibold text-zinc-950">{confirmation}</span> is paid and on its way to the kitchen. {emailed ? `A receipt is on its way to ${d.email}.` : "We couldn't email your receipt, so please save this order number."} If anything changes they'll contact you at {d.phone}.</p>
             <Button onClick={close} className="mt-4">
               Done
             </Button>
@@ -179,14 +179,13 @@ export function CartDrawer() {
                   </a>
                 </div>
               )}
-              {cfg.mode === "email" && !error && <p className="text-zinc-500">You'll pay when you pick up your order.</p>}
             </div>
             <div className="flex flex-none gap-2 p-5 pt-0">
               <Button type="button" variant="outline" size="lg" onClick={() => setStep("cart")}>
                 Back
               </Button>
               <Button type="submit" size="lg" className="flex-1" disabled={busy}>
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : cfg.mode === "square" ? `Pay ${money(total)}` : `Place order · ${money(total)}`}
+                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : `Pay ${money(total)}`}
               </Button>
             </div>
           </form>
