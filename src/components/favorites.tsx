@@ -3,7 +3,6 @@ import { MENU, PHOTOS } from "@/data/menu";
 import { Reveal } from "@/components/reveal";
 import { money } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
-import { useOrderConfig, ordersHere } from "@/lib/config";
 
 const all = MENU.flatMap((c) => c.items);
 const pick = (name: string, image: string) => ({ ...all.find((i) => i.name === name)!, image });
@@ -19,7 +18,6 @@ const picks = [
 
 export function Favorites() {
   const { openItem } = useCart();
-  const { mode } = useOrderConfig();
   return (
     <section id="favorites" className="mx-auto max-w-7xl px-5 py-24 md:px-10 md:py-32">
       <Reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -38,7 +36,7 @@ export function Favorites() {
             <button
               type="button"
               onClick={() => openItem(p)}
-              aria-label={ordersHere(mode) ? `Customize and order ${p.name}` : `View ${p.name}`}
+              aria-label={`Customize and order ${p.name}`}
               className="group block w-full overflow-hidden rounded-3xl border border-black/10 bg-zinc-50 text-left transition-colors hover:bg-white"
             >
               <div className="aspect-[4/3] overflow-hidden">
@@ -59,7 +57,7 @@ export function Favorites() {
                 </div>
                 <span className="rounded-full bg-brand-tint px-3 py-1 text-sm font-bold text-brand">{money(p.price)}</span>
               </div>
-              <p className="px-6 pb-6 text-sm font-bold text-brand">{ordersHere(mode) ? "Customize & order →" : "See details →"}</p>
+              <p className="px-6 pb-6 text-sm font-bold text-brand">Customize &amp; order →</p>
             </button>
           </Reveal>
         ))}

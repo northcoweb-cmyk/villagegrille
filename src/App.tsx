@@ -1,10 +1,8 @@
-import { ExternalLink, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { CartProvider, useCart } from "@/lib/cart";
 import { Component as KineticNav } from "@/components/ui/sterling-gate-kinetic-navigation";
 import { CartDrawer } from "@/components/cart-drawer";
 import { ItemModal } from "@/components/item-modal";
-import { ItemDetail } from "@/components/item-detail";
-import { useOrderConfig, ordersHere } from "@/lib/config";
 import { Chatbot } from "@/components/chatbot";
 import Home from "@/pages/home";
 import MenuPage from "@/pages/menu-page";
@@ -13,34 +11,22 @@ import { money } from "@/lib/utils";
 import { useParallax, useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { usePath, useLinkInterception } from "@/lib/router";
 
-const navLinks = (ordersHere: boolean) => [
-  ordersHere ? { label: "Order online", href: "/menu" } : { label: "Order online", href: INFO.orderUrl, external: true },
-  ...(ordersHere ? [] : [{ label: "Our menu", href: "/menu" }]),
+const links = [
+  { label: "Order online", href: "/menu" },
   { label: "About us", href: "/#about" },
+  { label: "Favorites", href: "/#favorites" },
   { label: "Reviews", href: "/#reviews" },
   { label: "Visit us", href: "/#visit" },
-  ...(ordersHere ? [{ label: "Favorites", href: "/#favorites" }] : []),
 ];
 
 function SiteNav() {
   const { count, setOpen } = useCart();
-  const { mode } = useOrderConfig();
   return (
     <KineticNav
-      links={navLinks(mode !== "link")}
+      links={links}
       hint="Hungry?"
       logoSrc="/logo.png"
       rightSlot={
-        mode === "link" || mode === "loading" ? (
-          <a
-            href={mode === "link" ? INFO.orderUrl : "/menu"}
-            {...(mode === "link" ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-zinc-900 shadow-[0_4px_24px_rgb(0_0_0/0.12)] transition hover:bg-zinc-100"
-          >
-            {mode === "link" && <ExternalLink className="h-4 w-4 text-brand" />}
-            Order online
-          </a>
-        ) : (
         <button
           onClick={() => setOpen(true)}
           aria-label={`Open cart, ${count} items`}
@@ -52,7 +38,6 @@ function SiteNav() {
             <span className="grid h-5 min-w-5 place-items-center rounded-full bg-brand px-1 text-xs text-white">{count}</span>
           )}
         </button>
-        )
       }
       footer={
         <div className="space-y-1">
@@ -84,12 +69,11 @@ function CartPill() {
 
 function Screens() {
   const path = usePath();
-  const { mode } = useOrderConfig();
   useParallax(path);
   return path === "/menu" ? (
     <>
       <MenuPage />
-      {ordersHere(mode) && <CartPill />}
+      <CartPill />
     </>
   ) : (
     <Home />
@@ -97,10 +81,7 @@ function Screens() {
 }
 
 function Overlays() {
-  const { mode } = useOrderConfig();
-  return mode === "link" ? (
-    <ItemDetail />
-  ) : (
+  return (
     <>
       <CartDrawer />
       <ItemModal />

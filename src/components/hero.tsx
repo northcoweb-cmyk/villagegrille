@@ -1,4 +1,4 @@
-import { ExternalLink, MapPin } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { INFO, PHOTOS } from "@/data/menu";
 import { useOrderConfig } from "@/lib/config";
@@ -6,8 +6,7 @@ import { useOrderConfig } from "@/lib/config";
 const marquee = ["Deli Delights", "Diner Favorites", "Tex-Mex", "Gourmet Burgers", "Hot Subs", "Breakfast", "Pizza", "Wraps"];
 
 export function Hero() {
-  const { delivery, mode } = useOrderConfig();
-  const here = mode !== "link"; // "loading" counts as here: no external link until we know
+  const { delivery } = useOrderConfig();
   return (
     <section id="top" className="relative overflow-hidden pt-24">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-10 md:grid-cols-2 md:px-10 md:pb-24 md:pt-24">
@@ -22,18 +21,12 @@ export function Hero() {
             Stacked deli sandwiches, juicy burgers and authentic Tex-Mex. Order online for quick pickup{delivery ? " or delivery" : ""}.
           </p>
           <div style={{ animationDelay: "0.6s" }} className="hero-in mt-8 flex flex-wrap gap-3">
-            <a
-              href={here ? "/menu" : INFO.orderUrl}
-              {...(here ? {} : { target: "_blank", rel: "noopener noreferrer" })}
-              className={buttonVariants({ size: "lg" })}
-            >
-              Order online {!here && <ExternalLink className="h-5 w-5" />}
+            <a href="/menu" className={buttonVariants({ size: "lg" })}>
+              Order online <ArrowRight className="h-5 w-5" />
             </a>
-            {!here && (
-              <a href="/menu" className={buttonVariants({ size: "lg", variant: "outline" })}>
-                View the menu
-              </a>
-            )}
+            <a href={INFO.phoneHref} className={buttonVariants({ size: "lg", variant: "outline" })}>
+              Call {INFO.phone}
+            </a>
           </div>
         </div>
 

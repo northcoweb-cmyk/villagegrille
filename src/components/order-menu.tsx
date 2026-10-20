@@ -1,6 +1,5 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import { Plus, Search, Check } from "lucide-react";
-import { ExternalLink } from "lucide-react";
 import { MENU, INFO, thumb, type MenuItem } from "@/data/menu";
 import { useCart } from "@/lib/cart";
 import { cn, money } from "@/lib/utils";
@@ -61,9 +60,7 @@ const ItemCard = memo(function ItemCard({ item, qty, add, open, canAdd }: { item
 
 export function OrderMenu() {
   const { dispatch, lines, openItem } = useCart();
-  const { delivery, mode } = useOrderConfig();
-  const canAdd = mode === "square" || mode === "demo";
-  const linkMode = mode === "link";
+  const { delivery } = useOrderConfig();
   const [active, setActive] = useState("all");
   const [q, setQ] = useState("");
 
@@ -90,21 +87,11 @@ export function OrderMenu() {
     <section id="order" className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-10 md:pt-40">
       <Reveal className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">{canAdd ? <>Order online · {delivery ? "pickup or delivery" : "pickup"}</> : "Browse the menu"}</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-widest text-brand">Order online · {delivery ? "pickup or delivery" : "pickup"}</p>
           <h1 className="text-5xl font-extrabold tracking-tight md:text-7xl">Our menu</h1>
-          <p className="mt-3 text-zinc-600">{canAdd ? `ASAP · about 30 mins · ${INFO.address}` : "Tap any dish for details. Ready to order? Use the button, we'll open our online ordering page."}</p>
+          <p className="mt-3 text-zinc-600">ASAP · about 30 mins · {INFO.address}</p>
         </div>
         <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
-        {linkMode && (
-          <a
-            href={INFO.orderUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand px-6 font-bold text-white transition hover:bg-brand-dark"
-          >
-            Order online <ExternalLink className="h-4 w-4" />
-          </a>
-        )}
         <label className="relative block w-full md:w-80">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
           <input
@@ -146,7 +133,7 @@ export function OrderMenu() {
             </h2>
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {c.items.map((i) => (
-                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} open={openItem} canAdd={canAdd} />
+                <ItemCard key={i.id} item={i} qty={qtyById[i.id] ?? 0} add={add} open={openItem} canAdd />
               ))}
             </ul>
           </div>

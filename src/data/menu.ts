@@ -152,8 +152,6 @@ export const MENU: Category[] = [
 
 export const INFO = {
   name: "Village Grille",
-  /** The restaurant's existing online ordering page (tickets go to their POS as they do today) */
-  orderUrl: "https://order.yourmenu.com/villagegrille",
   address: "50 Southlawn Court, Rockville, MD 20850",
   mapsUrl: "https://maps.app.goo.gl/sMgwLDVAzfazYGNB6",
   phone: "(202) 557-4492",

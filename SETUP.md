@@ -1,19 +1,17 @@
 # Setup
 
-## Default: nothing to configure
-**Order online** opens the restaurant's existing ordering page (`INFO.orderUrl` in `src/data/menu.ts`), so their POS tickets keep
-arriving exactly as today. Deploy to Vercel (import the repo, defaults are fine) and it works.
+## How it works by default (no settings needed)
+The whole order process happens on this site: menu, customizing dishes, cart and checkout. By default it runs as a **demo**: no payment is taken and
+nothing is sent to any POS or to the restaurant. The customer who places the "order" gets the confirmation email (marked as a demo order).
+There is no link or redirect to any other ordering site.
 
-## Demo mode (to show the restaurant how it would work)
-Set `ORDER_MODE=demo` plus `RESEND_API_KEY`, `ORDER_EMAIL_FROM` (a verified sender) and `SITE_URL`, then redeploy. The site shows its own cart and checkout,
-but **no payment is taken and nothing is sent to any POS or to the restaurant**. The customer who places the "order" gets the full confirmation email
-(marked as a demo order, so nobody thinks lunch is coming). Because this sends email to whatever address is typed in, requests are rate limited,
-but turn it off after the demo by clearing `ORDER_MODE` and redeploying; the site goes back to handing off to the restaurant's existing ordering link.
+For the confirmation email set `RESEND_API_KEY`, `ORDER_EMAIL_FROM` (an address on a domain verified in Resend) and `SITE_URL` in Vercel, then redeploy.
+Without them the demo order still completes on screen; the email is just skipped. Demo requests are rate limited (5 per person per 10 minutes, 40 per hour overall).
 
-## Optional: orders placed on this site land in their Square POS
+## Going real: orders land in their Square POS (turn on `ORDER_MODE=square`)
 Turns on the site's own checkout: the customer pays by card on the site, the order is created in the restaurant's Square account as a
 pickup ticket, and the customer gets a receipt email. The restaurant is **not** emailed (the Square ticket is their copy).
-This runs **alongside** their current ordering link, so tell the manager before turning it on.
+Only do this once the restaurant has agreed.
 
 ### 1. Test in Square's sandbox first (free, no real money)
 1. developer.squareup.com: sign in and create an application.

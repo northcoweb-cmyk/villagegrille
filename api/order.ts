@@ -3,7 +3,9 @@ import { MENU, INFO } from "../src/data/menu.js";
 import { renderReceipt } from "./_email.js";
 
 /**
- * POST /api/order  (only active when ORDER_MODE=square, or ORDER_MODE=demo which skips Square and payment)
+ * POST /api/order
+ *   Default ("demo"): no Square, no payment; the customer just gets the confirmation email.
+ *   ORDER_MODE=square (with the Square settings): real card payment + the order lands in the restaurant's Square POS.
  *
  *   1. create an Order in the restaurant's Square with a PICKUP fulfillment (this is the ticket the POS/KDS shows once paid)
  *   2. charge the card token against that order (amount = Square's own order total)
@@ -104,9 +106,8 @@ export default async function handler(req: Req, res: Res) {
   if (req.method !== "POST") return res.status(405).json({ error: "method_not_allowed" });
 
   const env = process.env;
-  const demo = env.ORDER_MODE === "demo";
   const squareOn = env.ORDER_MODE === "square" && !!(env.SQUARE_ACCESS_TOKEN && env.SQUARE_LOCATION_ID && env.SQUARE_APPLICATION_ID);
-  if (!demo && !squareOn) return res.status(503).json({ error: "not_configured" });
+  const demo = !squareOn;
 
   const ip = String(req.headers["x-forwarded-for"] ?? req.socket?.remoteAddress ?? "unknown").split(",")[0].trim();
   if (limited(ip, demo)) return res.status(429).json({ error: "rate_limited" });

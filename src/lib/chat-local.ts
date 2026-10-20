@@ -36,7 +36,7 @@ const CATEGORY_WORDS: [RegExp, string][] = [
   [/kid|junior|\bjr\b/, "Junior Combos"],
 ];
 
-export function localAnswer(question: string, ordersHere = false): string {
+export function localAnswer(question: string): string {
   const q = question.toLowerCase();
 
   if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b/.test(q.trim()) && q.length < 25)
@@ -55,9 +55,7 @@ export function localAnswer(question: string, ordersHere = false): string {
   if (/phone|call|number|contact|reach/.test(q)) return `You can call us at ${INFO.phone}.`;
 
   if (/gift ?card/.test(q))
-    return ordersHere
-      ? `For gift cards, please call us at ${INFO.phone}.`
-      : "Gift cards are on our online ordering page, in any amount. They're emailed and can be used online or in-store.";
+    return `For gift cards, please call us at ${INFO.phone}.`;
 
   // a specific dish
   const qw = words(q).filter((w) => !STOP.has(w));
@@ -101,14 +99,10 @@ export function localAnswer(question: string, ordersHere = false): string {
   }
 
   if (/deliver/.test(q))
-    return ordersHere
-      ? `Online ordering here is for pickup. For delivery, please call ${INFO.phone}.`
-      : `Yes, you can choose pickup or delivery when you order online at ${INFO.orderUrl}. For delivery details, you can also call ${INFO.phone}.`;
-  if (/pick ?up|take ?out|to go/.test(q)) return ordersHere ? "Yes! Tap Order online and pick up your order in about 30 minutes." : `Yes! Order online for pickup at ${INFO.orderUrl}. It's usually ready in about 30 minutes.`;
+    return `Online ordering here is for pickup. For delivery, please call ${INFO.phone}.`;
+  if (/pick ?up|take ?out|to go/.test(q)) return "Yes! Tap Order online and pick up your order in about 30 minutes.";
   if (/order|online|menu/.test(q))
-    return ordersHere
-      ? "Tap Order online, pick your dishes, and customize each one (remove ingredients, add notes). Then check out for pickup."
-      : `You can order online for pickup or delivery at ${INFO.orderUrl}. You can remove ingredients and add notes to any dish there.`;
+    return "Tap Order online, pick your dishes, and customize each one (remove ingredients, add notes). Then check out for pickup.";
   if (/what (do|kind)|serve|food|cuisine|about/.test(q))
     return "We serve deli sandwiches and subs, burgers, breakfast, pizza, wraps, salads and Tex-Mex, all in Rockville.";
 
